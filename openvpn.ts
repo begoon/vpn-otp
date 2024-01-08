@@ -29,7 +29,7 @@ export async function* connect({
 
     let configPath: string | undefined;
 
-    if (config?.includes("\n")) {
+    if (config?.includes("BEGIN CERTIFICATE")) {
         configPath = await Deno.makeTempFile();
         await Deno.writeTextFile(configPath, config);
         config = configPath;
