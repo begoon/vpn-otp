@@ -49,8 +49,13 @@ export async function* connect({
     const readyRE = /Initialization Sequence Completed/;
     const addrRE = /add net (\d+\.\d+\.\d+\.\d+): gateway (192|172)/;
     let addr = "?";
+    let read = 0;
     for await (const line of exe) {
         if (verbose) console.log(line);
+        else {
+            Deno.stdout.write(new TextEncoder().encode("."));
+            read += 1;
+        }
         const isAddr = line.match(addrRE);
         if (isAddr) {
             addr = isAddr[1];
@@ -60,6 +65,10 @@ export async function* connect({
         if (isConnected) {
             await Deno.remove(credsPath);
             if (configPath) await Deno.remove(configPath);
+            if (read) {
+                const eraser = "\r" + " ".repeat(read) + "\r";
+                Deno.stdout.write(new TextEncoder().encode(eraser));
+            }
             yield { addr, connected: true };
         }
     }

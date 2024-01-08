@@ -14,4 +14,4 @@ const options = {
 } as const;
 
 const connected = (await connect(options).next()).value;
-console.log({ connected });
+console.log(connected);
