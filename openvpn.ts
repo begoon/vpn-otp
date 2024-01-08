@@ -21,10 +21,20 @@ export async function* connect({
     verbose,
 }: Options) {
     const code = new TOTP({ secret }).generate();
-    const data = username + "\n" + password + code + "\n";
+    const creds = username + "\n" + password + code + "\n";
 
-    const file = "data.txt";
-    Deno.writeTextFileSync(file, data, { create: true, mode: 0o600 });
+    const credsPath = await Deno.makeTempFile();
+    if (verbose) console.log("credentials", credsPath);
+    await Deno.writeTextFile(credsPath, creds, { create: true, mode: 0o600 });
+
+    let configPath: string | undefined;
+
+    if (config?.includes("\n")) {
+        configPath = await Deno.makeTempFile();
+        await Deno.writeTextFile(configPath, config);
+        config = configPath;
+        if (verbose) console.log("config", configPath);
+    }
 
     if (verbose) console.log("connecting");
     const exe = shell("sudo", [
@@ -33,11 +43,11 @@ export async function* connect({
         config,
         "--auth-nocache",
         "--auth-user-pass",
-        file,
+        credsPath,
     ]);
 
     const readyRE = /Initialization Sequence Completed/;
-    const addrRE = /add net (\d+\.\d+\.\d+\.\d+): gateway 192.168.0.1/;
+    const addrRE = /add net (\d+\.\d+\.\d+\.\d+): gateway (192|172)/;
     let addr = "?";
     for await (const line of exe) {
         if (verbose) console.log(line);
@@ -48,7 +58,8 @@ export async function* connect({
         }
         const isConnected = line.match(readyRE);
         if (isConnected) {
-            await Deno.remove(file);
+            await Deno.remove(credsPath);
+            if (configPath) await Deno.remove(configPath);
             yield { addr, connected: true };
         }
     }

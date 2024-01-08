@@ -11,8 +11,7 @@ const options = {
     secret: Secret.fromBase32(env.VPN_OTP_SECRET || ""),
     config: env.VPN_CONFIG || "?",
     verbose: process.argv.includes("-vv"),
-};
+} as const;
 
 const connected = (await connect(options).next()).value;
-
 console.log({ connected });
