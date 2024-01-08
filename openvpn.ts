@@ -1,11 +1,14 @@
 import { shell } from "./shell.ts";
 
-import { TOTP } from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
+import {
+    Secret,
+    TOTP,
+} from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
 
 export type Options = {
     username: string;
     password: string;
-    secret: string;
+    secret: Secret;
     config: string;
     verbose?: boolean;
 };

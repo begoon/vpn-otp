@@ -8,7 +8,7 @@ import { connect } from "./openvpn.ts";
 const options = {
     username: env.VPN_USERNAME || "*",
     password: env.VPN_PASSWORD || "*",
-    secret: Secret.fromBase32(env.VPN_OTP_SECRET) || "",
+    secret: Secret.fromBase32(env.VPN_OTP_SECRET || ""),
     config: env.VPN_CONFIG || "?",
     verbose: process.argv.includes("-vv"),
 };
