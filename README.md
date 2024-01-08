@@ -31,10 +31,6 @@ VPN_CONFIG=user.ovpn
 
 NOTE: Make sure that `VPN_OTP_SECRET` is in base32 format, not base64 or hex.
 
-```bash
-echo -n "secret" | base32
-```
-
 ## Usage
 
 The following command runs the tool directly from the repository.
@@ -52,19 +48,19 @@ deno run -A --env=PATH_TO_VPN_ENV_FILE -r https://github.com/begoon/vpn-otp/raw/
 For example, you may create an alias in your `.bashrc` or `.zshrc:`
 
 ```bash
-alias iproov-vpn="deno run -A --env=$HOME/.ssh/vpn.env -r https://github.com/begoon/vpn-otp/raw/main/main.ts"
+alias vpn="deno run -A --env=$HOME/.ssh/vpn.env -r https://github.com/begoon/vpn-otp/raw/main/main.ts"
 ```
 
 and then run it as
 
 ```bash
-iproov-vpn
+vpn
 ```
 
 or with verbose output
 
 ```bash
-iproov-vpn -vv
+vpn -vv
 ```
 
 The VPN config in this example is located in the `$HOME/.ssh/vpn.env` file.
