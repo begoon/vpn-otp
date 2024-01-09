@@ -1,9 +1,13 @@
-import { shell } from "./shell.ts";
-
+import { mergeReadableStreams } from "https://deno.land/std@0.211.0/streams/merge_readable_streams.ts";
+import { TextLineStream } from "https://deno.land/std@0.211.0/streams/text_line_stream.ts";
 import {
     Secret,
     TOTP,
 } from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
+
+import djs from "./deno.json" assert { type: "json" };
+
+const { version } = djs;
 
 export type Options = {
     username: string;
@@ -20,6 +24,8 @@ export async function* connect({
     config,
     verbose,
 }: Options) {
+    if (verbose) console.log("vpn-otp", version);
+
     const code = new TOTP({ secret }).generate();
     const creds = username + "\n" + password + code + "\n";
 
@@ -36,21 +42,49 @@ export async function* connect({
         if (verbose) console.log("config", configPath);
     }
 
-    if (verbose) console.log("connecting");
-    const exe = shell("sudo", [
-        "openvpn",
-        "--config",
-        config,
-        "--auth-nocache",
-        "--auth-user-pass",
-        credsPath,
-    ]);
+    Deno.addSignalListener("SIGINT", async () => await cleanup());
+
+    if (verbose) console.log("running openvpn");
+
+    const process = new Deno.Command("sudo", {
+        args: [
+            "openvpn",
+            "--config",
+            config,
+            "--auth-nocache",
+            "--auth-user-pass",
+            credsPath,
+        ],
+        stdin: "piped",
+        stdout: "piped",
+        stderr: "piped",
+    }).spawn();
+    process.stdin?.close();
+
+    const output = mergeReadableStreams(process.stdout, process.stderr)
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(new TextLineStream());
+
+    let cleanedUp = false;
+    async function cleanup() {
+        if (cleanedUp) return;
+        if (verbose) console.log("deleting credentials", credsPath);
+        await Deno.remove(credsPath);
+        if (configPath) {
+            if (verbose) console.log("deleting config", configPath);
+            await Deno.remove(configPath);
+        }
+        cleanedUp = true;
+    }
 
     const readyRE = /Initialization Sequence Completed/;
     const addrRE = /add net (\d+\.\d+\.\d+\.\d+): gateway (192|172)/;
     let addr = "?";
     let read = 0;
-    for await (const line of exe) {
+
+    console.log("Press Ctrl-C to stop");
+
+    for await (const line of output) {
         if (verbose) console.log(line);
         else {
             Deno.stdout.write(new TextEncoder().encode("."));
@@ -63,8 +97,7 @@ export async function* connect({
         }
         const isConnected = line.match(readyRE);
         if (isConnected) {
-            await Deno.remove(credsPath);
-            if (configPath) await Deno.remove(configPath);
+            await cleanup();
             if (read) {
                 const eraser = "\r" + " ".repeat(read) + "\r";
                 Deno.stdout.write(new TextEncoder().encode(eraser));
