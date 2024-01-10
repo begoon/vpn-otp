@@ -1,5 +1,7 @@
-import { Secret } from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
+import { white } from "https://deno.land/std@0.211.0/fmt/colors.ts";
 import process from "node:process";
+
+import { Secret } from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
 
 const env = process.env;
 
@@ -15,3 +17,6 @@ const options = {
 
 const connected = (await connect(options).next()).value;
 console.log(connected);
+
+const apify = "https://api.ipify.org";
+console.log("public IP from", apify, white(await (await fetch(apify)).text()));
