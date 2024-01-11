@@ -17,6 +17,8 @@ export type Options = {
     verbose?: boolean;
 };
 
+const LINE_CLEAR = new TextEncoder().encode("\r\u001b[K");
+
 export async function* connect({
     username,
     password,
@@ -80,16 +82,13 @@ export async function* connect({
     const readyRE = /Initialization Sequence Completed/;
     const addrRE = /add net (\d+\.\d+\.\d+\.\d+): gateway (192|172)/;
     let addr = "?";
-    let read = 0;
 
     console.log("Press Ctrl-C to stop");
 
     for await (const line of output) {
         if (verbose) console.log(line);
-        else {
-            Deno.stdout.write(new TextEncoder().encode("."));
-            read += 1;
-        }
+        else Deno.stdout.write(new TextEncoder().encode("."));
+
         const isAddr = line.match(addrRE);
         if (isAddr) {
             addr = isAddr[1];
@@ -98,10 +97,7 @@ export async function* connect({
         const isConnected = line.match(readyRE);
         if (isConnected) {
             await cleanup();
-            if (read) {
-                const eraser = "\r" + " ".repeat(read) + "\r";
-                Deno.stdout.write(new TextEncoder().encode(eraser));
-            }
+            await Deno.stdout.write(LINE_CLEAR);
             yield { addr, connected: true };
         }
     }
