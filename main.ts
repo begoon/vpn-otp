@@ -1,7 +1,7 @@
-import { white } from "https://deno.land/std@0.211.0/fmt/colors.ts";
+import { white } from "jsr:@std/fmt@0.218.2/colors";
 import process from "node:process";
 
-import { Secret } from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
+import { Secret } from "otpauth";
 
 const env = process.env;
 

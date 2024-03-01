@@ -1,11 +1,7 @@
-import { mergeReadableStreams } from "https://deno.land/std@0.211.0/streams/merge_readable_streams.ts";
-import { TextLineStream } from "https://deno.land/std@0.211.0/streams/text_line_stream.ts";
-import {
-    Secret,
-    TOTP,
-} from "https://deno.land/x/otpauth@v9.2.1/dist/otpauth.esm.js";
+import { mergeReadableStreams, TextLineStream } from "jsr:@std/streams@0.218.2";
+import { Secret, TOTP } from "otpauth";
 
-import djs from "./deno.json" assert { type: "json" };
+import djs from "./deno.json" with { type: "json" };
 
 const { version } = djs;
 

@@ -1,7 +1,13 @@
 {
-    "version": "1.0.2",
+    "version": "1.0.3",
+    "description": "VPN-OTP helps to connect to a VPN via OpenVPN with OTP (one-time password) authentication.",
     "tasks": {
         "dev": "deno run -A --env main.ts -vv",
         "run": "deno run -A --env main.ts"
+    },
+    "name": "@demin/vpn-otp",
+    "exports": "./main.ts",
+    "imports": {
+        "otpauth": "npm:otpauth@9.2.2"
     }
 }

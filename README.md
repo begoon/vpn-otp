@@ -42,13 +42,13 @@ The following command runs the tool directly from the repository.
 `--env` flag allows to pass the path to the `.env` file. If the flag is not set, the tool will try to find the `.env` file in the current directory.
 
 ```bash
-deno run -A --env=PATH_TO_VPN_ENV_FILE -r https://github.com/begoon/vpn-otp/raw/main/main.ts'
+deno run -A --env=PATH_TO_VPN_ENV_FILE -r jsr:@demin/vpn-otp'
 ```
 
 For example, you may create an alias in your `.bashrc` or `.zshrc:`
 
 ```bash
-alias vpn="deno run -A --env=$HOME/.ssh/vpn.env -r https://github.com/begoon/vpn-otp/raw/main/main.ts"
+alias vpn="deno run -A --env=$HOME/.ssh/vpn.env -r jsr:@demin/vpn-otp"
 ```
 
 and then run it as
