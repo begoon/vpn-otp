@@ -5,6 +5,3 @@ build:
 
 install:
 	mv ivpn $(HOME)/bin
-
-clean:
-	git clean -xdf
