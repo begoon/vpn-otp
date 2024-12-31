@@ -1,5 +1,6 @@
 import { mergeReadableStreams, TextLineStream } from "jsr:@std/streams@0.218.2";
-import { Secret, TOTP } from "otpauth";
+import { TOTP } from "otpauth";
+import type { Secret } from "otpauth";
 
 import djs from "./deno.json" with { type: "json" };
 
